@@ -83,6 +83,9 @@ alerts-rooted-desc = Вы прикреплены к земле. Вы не мож
 alerts-stealthy-name = Карманничество
 alerts-stealthy-desc = Определяет режим скрытой кражи. Нажмите для переключения.
 
+alerts-mood-name = Настроение
+alerts-mood-desc = Ваше текущее настроение.
+
 alerts-prying-name = Вскрытие
 
 alerts-prying-desc = Вы можете вскрывать двери, используя альтернативное взаимодействие.

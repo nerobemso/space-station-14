@@ -33,3 +33,8 @@
 
 - type: alertCategory
   id: Battery
+
+# SS220 Mood start
+- type: alertCategory
+  id: Mood
+# SS220 Mood end

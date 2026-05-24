@@ -1,0 +1,48 @@
+{
+    "version": 1,
+    "size": {
+        "x": 32,
+        "y": 32
+    },
+    "states": [
+        {
+            "name": "mood_euphoric"
+        },
+        {
+            "name": "mood_fantastic"
+        },
+        {
+            "name": "mood_great"
+        },
+        {
+            "name": "mood_happy"
+        },
+        {
+            "name": "mood_neutral"
+        },
+        {
+            "name": "mood_sad"
+        },
+        {
+            "name": "mood_bad"
+        },
+        {
+            "name": "mood_miserable"
+        },
+        {
+            "name": "mood_terrible"
+        },
+        {
+            "name": "mood_desentized"
+        },
+        {
+            "name": "mood_despair"
+        },
+        {
+            "name": "mood_happiness_bad"
+        },
+        {
+            "name": "mood_happiness_good"
+        }
+    ]
+}

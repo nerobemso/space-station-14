@@ -7,6 +7,7 @@
     - alertType: BloodPoints #SS220 Spider queen antag
     - category: Health
     - category: Stamina
+    - category: Mood #SS220 Mood
     - alertType: SuitPower
     - category: Internals
     - alertType: Fire
@@ -540,3 +541,42 @@
     state: critical
   name: Debug6
   description: Debug
+
+# SS220 Mood start
+
+- type: alert
+  id: Mood
+  category: Mood
+  icons:
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_euphoric
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_fantastic
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_great
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_happy
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_neutral
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_sad
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_bad
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_miserable
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_terrible
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_desentized
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_despair
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_happiness_bad
+  - sprite: /Textures/Interface/Alerts/mood.rsi
+    state: mood_happiness_good
+  name: alerts-mood-name
+  description: alerts-mood-desc
+  minSeverity: 0
+  maxSeverity: 12
+
+# SS220 Mood end
