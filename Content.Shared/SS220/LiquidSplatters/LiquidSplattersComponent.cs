@@ -10,4 +10,10 @@ public sealed partial class LiquidSplattersComponent : Component
 
     [DataField("intensity"), AutoNetworkedField]
     public float Intensity = .5f;
+
+    [DataField("color"), AutoNetworkedField]
+    public Color Color = new(.65f, 0f, 0f);
+
+    [DataField("color_darkness"), AutoNetworkedField]
+    public float ColorDarkness = .7f;
 }

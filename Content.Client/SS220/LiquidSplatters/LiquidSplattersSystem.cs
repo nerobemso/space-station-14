@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Content.Shared.Clothing;
 using Content.Shared.Inventory.Events;
 using Robust.Client.GameObjects;
 using Robust.Client.Graphics;
 using Robust.Shared.GameStates;
+using Robust.Shared.Maths;
 using Robust.Shared.Prototypes;
 using Content.Shared.SS220.LiquidSplatters;
 
@@ -80,6 +82,8 @@ public sealed class LiquidSplattersSystem : EntitySystem
         }
 
         shader.SetParameter("intensity", ent.Comp.Intensity);
+        shader.SetParameter("color", ToShaderColor(ent.Comp.Color));
+        shader.SetParameter("color_darkness", ent.Comp.ColorDarkness);
 
         if (sprite != null)
             ApplyLayerShaders(sprite, shader);
@@ -136,6 +140,11 @@ public sealed class LiquidSplattersSystem : EntitySystem
 
             sprite.LayerSetShader(layerIndex, null, null);
         }
+    }
+
+    private static Vector3 ToShaderColor(Color color)
+    {
+        return new Vector3(color.R, color.G, color.B);
     }
 
     private sealed record EquippedLayers(EntityUid Wearer, HashSet<string> LayerKeys);

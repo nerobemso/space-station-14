@@ -1,5 +1,7 @@
 uniform highp float intensity;
 uniform highp float time_created;
+uniform highp vec3 color;
+uniform lowp float color_darkness;
 
 highp float hash(highp vec2 p){
   p = fract(p * vec2(127.1, 311.7));
@@ -35,5 +37,5 @@ void fragment() {
   highp float alphaNoise = noise(pixelUv * 8.0 + vec2(21.3, 6.8));
   highp float overlayAlpha = splatterMask * mix(0.3, 0.9, alphaNoise);
 
-  COLOR = vec4(mix(base.rgb, vec3(0.3, -0.5, -0.5), overlayAlpha), base.a);
+  COLOR = vec4(mix(base.rgb, color - color_darkness, overlayAlpha), base.a);
 }
