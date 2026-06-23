@@ -1,4 +1,5 @@
 uniform highp float intensity;
+uniform highp float time_created;
 
 highp float hash(highp vec2 p){
   p = fract(p * vec2(127.1, 311.7));
