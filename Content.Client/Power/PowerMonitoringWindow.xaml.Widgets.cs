@@ -6,6 +6,7 @@ using Robust.Shared.Utility;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
+using Content.Client.UserInterface.Controls;
 
 namespace Content.Client.Power;
 
@@ -37,6 +38,7 @@ public sealed partial class PowerMonitoringWindow
         UpdateEntrySourcesOrLoads(masterContainer, windowEntry.LoadsContainer, focusLoads, _loadIconPath);
 
         windowEntry.MainContainer.Visible = true;
+        windowEntry.ApcRemoteControl.Visible = entry.Group == PowerMonitoringConsoleGroup.APC;
     }
 
     private void UpdateWindowConsoleEntry(BoxContainer masterContainer, int index, PowerMonitoringConsoleEntry entry)
@@ -55,6 +57,7 @@ public sealed partial class PowerMonitoringWindow
             {
                 windowEntry.SourcesContainer.RemoveAllChildren();
                 windowEntry.LoadsContainer.RemoveAllChildren();
+                windowEntry.ApcRemoteControl.Visible = false;
                 ButtonAction(windowEntry, masterContainer);
             };
         }
@@ -353,6 +356,8 @@ public sealed class PowerMonitoringWindowEntry : PowerMonitoringWindowBaseEntry
     public BoxContainer SourcesContainer;
     public BoxContainer LoadsContainer;
 
+    public ApcRemoteControl ApcRemoteControl;
+
     public PowerMonitoringWindowEntry(PowerMonitoringConsoleEntry entry) : base(entry)
     {
         Entry = entry;
@@ -364,6 +369,12 @@ public sealed class PowerMonitoringWindowEntry : PowerMonitoringWindowBaseEntry
         // Update selection button
         Button.StyleClasses.Add("OpenLeft");
         AddChild(Button);
+
+        ApcRemoteControl = new ApcRemoteControl()
+        {
+            Visible = false
+        };
+        AddChild(ApcRemoteControl);
 
         // Grid container to hold sub containers
         MainContainer = new BoxContainer()
@@ -432,6 +443,51 @@ public abstract class PowerMonitoringWindowBaseEntry : BoxContainer
 
         // Add selection button (properties set by derivative classes)
         Button = new PowerMonitoringButton();
+    }
+}
+
+// TODO: Fix floating window on another entry selection
+public sealed class ApcRemoteControl : BoxContainer
+{
+    public SwitchButton BreakerButton;
+
+    public ApcRemoteControl()
+    {
+        Orientation = LayoutOrientation.Vertical;
+
+        // Main Wrapper BoxContainer
+        var mainContentBox = new BoxContainer
+        {
+            Orientation = LayoutOrientation.Vertical,
+            Margin = new Thickness(0, 5, 10, 10)
+        };
+        AddChild(mainContentBox);
+
+        var dataVerticalBox = new StripeBack();
+        mainContentBox.AddChild(dataVerticalBox);
+
+        var grid = new GridContainer
+        {
+            Columns = 2,
+            Margin = new Thickness(10, 10, 0, 10)
+        };
+        dataVerticalBox.AddChild(grid);
+
+        // Power On/Off
+        var breakerLabel = new Label
+        {
+            Text = Loc.GetString("apc-menu-breaker-label"),
+            HorizontalExpand = true,
+            MinWidth = 120
+        };
+        breakerLabel.StyleClasses.Add("highlight");
+        grid.AddChild(breakerLabel);
+
+        BreakerButton = new SwitchButton
+        {
+            MinWidth = 150
+        };
+        grid.AddChild(BreakerButton);
     }
 }
 
