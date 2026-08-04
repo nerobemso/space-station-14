@@ -1,6 +1,8 @@
-﻿using Robust.Client.GameObjects;
+﻿using Content.Shared.SS220.Recolorable;
+using Content.Shared.Verbs;
+using Robust.Client.GameObjects;
 
-namespace Content.Shared.SS220.Recolorable;
+namespace Content.Client.SS220.Recolorable;
 
 /// <summary>
 /// This handles...
@@ -15,21 +17,25 @@ public sealed class RecolorableSystem : EntitySystem
     {
         base.Initialize();
 
-        SubscribeLocalEvent<RecolorableComponent, ComponentInit>(OnInitialize);
+        SubscribeLocalEvent<RecolorableComponent, GetVerbsEvent<AlternativeVerb>>(AddRecolorVerb);
     }
 
-    private void OnInitialize(Entity<RecolorableComponent> ent, ref ComponentInit args)
+    private void AddRecolorVerb(Entity<RecolorableComponent> ent, ref GetVerbsEvent<AlternativeVerb> args)
     {
-        if (!TryComp<SpriteComponent>(ent.Owner, out var sprite))
+        if (!args.CanAccess || !args.CanInteract)
             return;
 
-        ent.Comp.ColorableLayers.Add(0);
-
-        for (int i = 0; i < ent.Comp.ColorableLayers.Count; i++)
+        AlternativeVerb verb = new()
         {
-            var layer = ent.Comp.ColorableLayers[i];
-            _spriteSystem.LayerSetColor((ent, sprite), layer, ent.Comp.Color);
-        }
-    }
+            Text = Loc.GetString("recolorable-verb-get-data-text"),
+            Act = () =>
+            {
+                var window = new LayerColorEditor();
+                window.SetTarget(ent.Owner);
+                window.OpenCentered();
+            },
+        };
 
+        args.Verbs.Add(verb);
+    }
 }

@@ -1,0 +1,30 @@
+﻿<controls:FancyWindow xmlns="https://spacestation14.io"
+                      xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
+                      Title="Sprite Layer Editor"
+                      MinSize="400 300">
+
+    <BoxContainer Orientation="Horizontal" HorizontalExpand="True" VerticalExpand="True">
+
+        <!-- left: layer selector -->
+        <ItemList Name="LayerList"
+                  MinWidth="150"
+                  VerticalExpand="True" />
+
+        <!-- right: preview and color sliders -->
+        <BoxContainer Orientation="Vertical"
+                      HorizontalExpand="True"
+                      VerticalExpand="True"
+                      Margin="4 0 0 0">
+
+            <SpriteView Name="Preview"
+                        Scale="4 4"
+                        HorizontalAlignment="Center"
+                        Margin="0 0 0 8" />
+
+            <ColorSelectorSliders Name="ColorSliders"
+                                  HorizontalExpand="True" />
+
+        </BoxContainer>
+
+    </BoxContainer>
+</controls:FancyWindow>
