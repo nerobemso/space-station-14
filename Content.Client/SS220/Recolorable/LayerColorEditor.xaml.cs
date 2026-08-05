@@ -18,11 +18,16 @@ public sealed partial class LayerColorEditor : FancyWindow
 
     private EntityUid _target;
     private EntityUid? _previewTarget;
+    private EntityUid? _previewEquipped;
     private EntityUid? _clothingDummy;
 
     private Dictionary<int, Color> _layerColors = new();
     private Dictionary<int, bool> _layerVisible = new();
     private readonly List<int> _layerIndices = new();
+
+    private bool _isTargetClothing;
+    private List<PrototypeLayerData> _clothingLayers = new();
+    private readonly Dictionary<int, string> _clothingLayerKeys = new();
 
     public LayerColorEditor()
     {
@@ -60,66 +65,44 @@ public sealed partial class LayerColorEditor : FancyWindow
         if (_clothingDummy is { } dummy)
             _entManager.DeleteEntity(dummy);
 
-        var metadata = _entManager.GetComponent<MetaDataComponent>(uid);
-        if (metadata.EntityPrototype == null)
-            return;
+        LayerList.Clear();
+        _layerIndices.Clear();
+        _layerColors.Clear();
+        _layerVisible.Clear();
+        ClothingVisualsPreview.Visible = false;
+        _isTargetClothing = false;
+        _clothingLayerKeys.Clear();
 
-        _previewTarget = _entManager.SpawnEntity(metadata.EntityPrototype.ID, MapCoordinates.Nullspace);
-        _clothingDummy =_entManager.SpawnEntity("MobHumanDummy", MapCoordinates.Nullspace);
+        if (_entManager.HasComponent<ClothingComponent>(_target))
+            _isTargetClothing = true;
 
-        if (_entManager.TryGetComponent<ClothingComponent>(_target, out var clothingComponent)
-            && TryGetFirstMatchingSlot(_clothingDummy.Value, clothingComponent.Slots, out var slot))
+        var metadata = _entManager.GetComponent<MetaDataComponent>(_target);
+        _previewTarget = _entManager.SpawnEntity(metadata.EntityPrototype?.ID, MapCoordinates.Nullspace);
+        Preview.SetEntity(_previewTarget);
+
+        if (_isTargetClothing)
         {
-            ClothingVisualsPreview.Visible = true;
-            _clothingDummy =_entManager.SpawnEntity("MobHumanDummy", MapCoordinates.Nullspace);
-            ClothingVisualsPreview.SetEntity(_clothingDummy);
-
-            _entManager.System<InventorySystem>()
-                .TryEquip(_clothingDummy.Value,
-                    _previewTarget.Value,
-                    slot,
-                    true,
-                    true
-                    );
-
-            var clothingLayers = clothingComponent.ClothingVisuals[slot];
-
-            for (int i = 0; i < clothingLayers.Count; i++)
-            {
-                var label = $"Clothing Layer {i}";
-                var currentLayer = clothingLayers[i];
-                var wasVisible = currentLayer.Visible.GetValueOrDefault(false);
-                var color = currentLayer.Color.GetValueOrDefault(Color.White);
-
-                LayerList.AddItem(label);
-                _layerIndices.Add(i);
-                _layerVisible.Add(i, wasVisible);
-                _layerColors.Add(i, color);
-            }
+            handleClothingColoring();
         }
         else
         {
-            ClothingVisualsPreview.Visible = false;
-            _entManager.DeleteEntity(_clothingDummy);
+            handleAnyOtherColoring();
         }
+    }
 
-        Preview.SetEntity(_previewTarget);
+    private void handleAnyOtherColoring()
+    {
+        if (!_entManager.TryGetComponent<SpriteComponent>(_target, out var sprite))
+            return;
 
-        LayerList.Clear();
-        _layerIndices.Clear();
-
-        if (!_entManager.TryGetComponent<SpriteComponent>(uid, out var sprite))
+        if (_previewTarget is not { } preview ||
+            !_entManager.TryGetComponent<SpriteComponent>(preview, out var previewSprite))
             return;
 
         for (var i = _layerIndices.Count; i < sprite.AllLayers.Count(); i++)
         {
-            // Maybe try to get the layer name?
-            // var label = sprite.TryGetLayer(i, out var layer)
-            //     ? layer.ToString()
-            //     : $"Layer {i}";
-
             var label = $"Layer {i}";
-            if (!_spriteSystem.TryGetLayer((uid, sprite), i, out var layer, false))
+            if (!_spriteSystem.TryGetLayer((_target, sprite), i, out var layer, false))
                 return;
 
             var isVisible = layer.Visible;
@@ -129,6 +112,61 @@ public sealed partial class LayerColorEditor : FancyWindow
             _layerIndices.Add(i);
             _layerColors.Add(i, color);
             _layerVisible.Add(i, isVisible);
+
+            _spriteSystem.LayerSetColor((preview, previewSprite), i, layer.Color);
+            _spriteSystem.LayerSetVisible((preview, previewSprite), i, layer.Visible);
+        }
+    }
+
+    private void handleClothingColoring()
+    {
+        _clothingDummy =_entManager.SpawnEntity("MobHuman", MapCoordinates.Nullspace);
+        ClothingVisualsPreview.Visible = true;
+        ClothingVisualsPreview.SetEntity(_clothingDummy);
+
+        if (!_entManager.TryGetComponent<ClothingComponent>(_previewTarget, out var clothingComp))
+            return;
+
+        if (_clothingDummy is not {} dummy
+            || !_entManager.TryGetComponent<SpriteComponent>(dummy, out var dummySpriteComp))
+            return;
+
+        if (_previewTarget == null)
+            return;
+
+        if (!TryGetFirstMatchingSlot(_clothingDummy.Value, clothingComp.Slots, out var equippableSlot))
+            return;
+
+        var metadata = _entManager.GetComponent<MetaDataComponent>(_target);
+        _previewEquipped = _entManager.SpawnEntity(metadata.EntityPrototype?.ID, MapCoordinates.Nullspace);
+
+        if (!_entManager.System<InventorySystem>()
+            .TryEquip(_clothingDummy.Value,
+                _previewEquipped.Value,
+                equippableSlot,
+                true,
+                true
+            ))
+            return;
+
+        var visuals = clothingComp.ClothingVisuals;
+        if (!visuals.TryGetValue(equippableSlot, out var slotLayers))
+            return;
+
+        _clothingLayers = slotLayers;
+
+        for (var i = 0; i < _clothingLayers.Count; i++)
+        {
+            var layerKey = slotLayers[i].MapKeys?.FirstOrDefault() ?? $"{equippableSlot}-{i}";
+
+            if (!_spriteSystem.TryGetLayer((dummy, dummySpriteComp), layerKey, out var currentLayer, false))
+                continue;
+
+            LayerList.AddItem($"Layer {i}");
+            _layerIndices.Add(i);
+            _clothingLayerKeys[i] = layerKey;
+            _layerVisible.Add(i, currentLayer.Visible);
+            _layerColors.Add(i, currentLayer.Color);
         }
     }
 
@@ -143,7 +181,14 @@ public sealed partial class LayerColorEditor : FancyWindow
             return;
 
         ColorSliders.Color = layer.Color;
+        ColorSliders.Visible = true;
         _spriteSystem.LayerSetVisible((preview, sprite), index, true);
+
+
+        if (_isTargetClothing)
+        {
+            _clothingLayers[index].Visible = true;
+        }
     }
 
     private void OnColorChanged(Color color)
@@ -160,6 +205,18 @@ public sealed partial class LayerColorEditor : FancyWindow
             return;
 
         _spriteSystem.LayerSetColor((preview, sprite), layerIndex, color);
+
+        if (!_isTargetClothing)
+            return;
+
+        _clothingLayers[layerIndex].Color = color;
+
+        if (_clothingDummy is not { } dummy
+            || !_entManager.TryGetComponent<SpriteComponent>(dummy, out var dummySprite)
+            || !_clothingLayerKeys.TryGetValue(layerIndex, out var layerKey))
+            return;
+
+        _spriteSystem.LayerSetColor((dummy, dummySprite), layerKey, color);
     }
 
     public override void Close()

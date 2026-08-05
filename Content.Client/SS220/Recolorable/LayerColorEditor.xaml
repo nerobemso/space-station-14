@@ -17,16 +17,15 @@
                       Margin="4 0 0 0">
 
             <BoxContainer Orientation="Horizontal"
+                          HorizontalAlignment="Center"
                           Margin="0 0 0 8">
 
                 <SpriteView Name="Preview"
                             Scale="4 4"
-                            HorizontalAlignment="Center"
                             Margin="0 0 0 8" />
 
                 <SpriteView Name="ClothingVisualsPreview"
                             Scale="4 4"
-                            HorizontalAlignment="Center"
                             Visible="False"
                             Margin="0 0 0 8" />
 
@@ -35,6 +34,8 @@
             <ColorSelectorSliders Name="ColorSliders"
                                   HorizontalExpand="True"
                                   Margin="2 0 2 10"
+                                  Visible="False"
+                                  IsAlphaVisible="False"
                                   MinWidth="500"/>
 
             <BoxContainer Orientation="Horizontal"
