@@ -10,8 +10,6 @@ namespace Content.Client.SS220.Recolorable;
 public sealed class RecolorableSystem : EntitySystem
 {
 
-    [Dependency] private SpriteSystem _spriteSystem = default!;
-
     /// <inheritdoc/>
     public override void Initialize()
     {
@@ -27,7 +25,8 @@ public sealed class RecolorableSystem : EntitySystem
 
         AlternativeVerb verb = new()
         {
-            Text = Loc.GetString("recolorable-verb-get-data-text"),
+            Text = "Recolor",
+            ClientExclusive = true,
             Act = () =>
             {
                 var window = new LayerColorEditor();

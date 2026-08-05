@@ -22,9 +22,16 @@
                         Margin="0 0 0 8" />
 
             <ColorSelectorSliders Name="ColorSliders"
-                                  HorizontalExpand="True" />
+                                  HorizontalExpand="True"
+                                  Margin="2 0 2 10"
+                                  MinWidth="500"/>
+
+            <BoxContainer Orientation="Horizontal"
+                          Margin="5 5">
+                <Button Name="PaintButton" Text="Paint" HorizontalExpand="True"/>
+                <Button Name="ResetButton" Text="Reset" HorizontalExpand="True"/>
+            </BoxContainer>
 
         </BoxContainer>
-
     </BoxContainer>
 </controls:FancyWindow>
